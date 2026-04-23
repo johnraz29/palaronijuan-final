@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 3002;
 
 // CONFIGURATIONS
 const ADMIN_PANEL_PASSWORD = process.env.ADMIN_PANEL_PASSWORD;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const PAYMONGO_SECRET = process.env.PAYMONGO_SECRET;
 // Sa session secret:
 secret: process.env.SESSION_SECRET || 'fallback_secret',
