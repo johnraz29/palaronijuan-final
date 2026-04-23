@@ -1,0 +1,158 @@
+/* Reset & base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+    color: #c8facc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 10px 40px;
+    border-bottom: 2px solid #00ff7f;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header .logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* LOGO SIZE ADJUSTMENT */
+header .logo img {
+    height: 55px; /* Pinalaki nang konti para mas kita ang details */
+    width: auto;  /* Preserve aspect ratio */
+    object-fit: contain;
+}
+
+header h1 a {
+    color: #00ff7f;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Navigation Links */
+nav {
+    display: flex;
+    align-items: center;
+}
+
+nav a {
+    color: #c8facc;
+    text-decoration: none;
+    margin-left: 25px;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+nav a:not(.sabong-link)::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    background: #00ff7f;
+    left: 0;
+    bottom: -4px;
+    transition: 0.3s;
+}
+
+nav a:hover:not(.sabong-link)::after {
+    width: 100%;
+}
+
+nav a:hover {
+    color: #00ff7f;
+}
+
+/* Flash messages */
+.flash {
+    margin: 20px auto;
+    padding: 12px 20px;
+    width: 90%;
+    max-width: 800px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.flash.error {
+    background-color: rgba(255, 62, 62, 0.2);
+    color: #ff5555;
+    border: 1px solid #ff5555;
+}
+
+.flash.success {
+    background-color: rgba(0, 255, 127, 0.2);
+    color: #00ff7f;
+    border: 1px solid #00ff7f;
+}
+
+/* Main content */
+main {
+    flex: 1;
+    padding: 30px;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #000;
+    border-top: 1px solid rgba(0, 255, 127, 0.3);
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    header {
+        flex-direction: column;
+        padding: 20px;
+        text-align: center;
+    }
+    header .logo {
+        margin-bottom: 15px;
+    }
+   nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* Pantay pakanan */
+}
+
+nav a, 
+nav .dropdown {
+    margin-left: 20px; /* Binawasan ko konti para mas safe sa screen */
+    text-decoration: none;
+    font-weight: 500;
+}
+}

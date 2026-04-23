@@ -1,0 +1,104 @@
+<link rel="stylesheet" href="/houseledger.css" />
+
+<div class="ledger-container">
+
+    <!-- HEADER -->
+    <div class="ledger-header">
+        <h2><i class="fas fa-vault"></i> House Ledger</h2>
+        <a href="/admin" class="btn-back">← Back to Admin</a>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="ledger-cards">
+
+        <div class="ledger-card blue">
+            <div class="card-content">
+                <h5>Sabong Commission (20%)</h5>
+                <p>₱<%= sabongEarnings.toLocaleString() %></p>
+                <span>Total Volume: ₱<%= totalSabongVolume.toLocaleString() %></span>
+            </div>
+        </div>
+
+        <div class="ledger-card green">
+            <div class="card-content">
+                <h5>Draw/Lotto Revenue</h5>
+                <p>₱<%= drawEarnings.toLocaleString() %></p>
+                <span>Total Tickets: <%= drawBets.length %></span>
+            </div>
+        </div>
+
+        <div class="ledger-card gold">
+            <div class="card-content">
+                <h5>Total Net Income</h5>
+                <p>₱<%= totalHouseEarnings.toLocaleString() %></p>
+                <span>Consolidated Revenue</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SABONG TABLE -->
+    <div class="ledger-table">
+        <div class="table-header red">Online Sabong Logs</div>
+
+        <div class="table-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th>Bet</th>
+                        <th>Status</th>
+                        <th>House Cut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% sabongBets.forEach(bet => { %>
+                    <tr>
+                        <td><%= new Date(bet.created_at).toLocaleString() %></td>
+                        <td>#<%= bet.user_id %></td>
+                        <td>₱<%= bet.amount %></td>
+                        <td>
+                            <span class="status <%= bet.status === 'won' ? 'win' : 'lose' %>">
+                                <%= bet.status %>
+                            </span>
+                        </td>
+                        <td class="income">+₱<%= (bet.amount * 0.20).toFixed(2) %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DRAW TABLE -->
+    <div class="ledger-table">
+        <div class="table-header yellow">Online Draw Logs</div>
+
+        <div class="table-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th>Game</th>
+                        <th>Bet</th>
+                        <th>Earnings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% drawBets.forEach(bet => { %>
+                    <tr>
+                        <td><%= new Date(bet.created_at).toLocaleString() %></td>
+                        <td>#<%= bet.user_id %></td>
+                        <td>Lotto 6/45</td>
+                        <td>₱<%= bet.amount %></td>
+                        <td class="income">+₱10.00</td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

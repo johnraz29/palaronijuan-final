@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Palaro Ni Juan</title>
+
+    <link rel="icon" type="image/png" href="/images/Logopalaronijuan.png" />
+    <link rel="stylesheet" href="/layout.css" />
+    
+    <style>
+        /* Pulse Animation para sa Sabong Link */
+        .sabong-link-inner {
+            color: #ff5555 !important;
+            font-weight: bold;
+            animation: pulse-text 2s infinite;
+        }
+
+        @keyframes pulse-text {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Dropdown Logic - FIXED HOVER */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px; 
+            margin-bottom: -15px; 
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #1a1a1a; 
+            min-width: 180px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.8), 0 0 10px rgba(0,255,127,0.2);
+            z-index: 9999; 
+            border-radius: 8px;
+            border: 1px solid #00ff7f;
+            top: 40px; 
+            right: 0; /* Ginawa nating right 0 para hindi lumalampas sa screen kung nasa dulo */
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: #c8facc !important;
+            padding: 12px 16px !important;
+            text-decoration: none;
+            display: block !important;
+            margin-left: 0 !important;
+            border-bottom: 1px solid rgba(0,255,127,0.1);
+            transition: 0.2s;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #00ff7f;
+            color: #000 !important; 
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-btn {
+            cursor: pointer;
+            color: #c8facc;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        
+        .dropdown-btn:hover {
+            background: rgba(0, 255, 127, 0.1);
+            color: #00ff7f;
+        }
+
+        /* Profile Special Styling */
+        .profile-tab {
+            color: #d4af37 !important; /* Gold color para sa Profile */
+            font-weight: bold;
+        }
+        .profile-tab:hover {
+            text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <img src="/images/Logopalaronijuan.png" alt="Palaro Ni Juan">
+        <h1><a href="/">Palaro Ni Juan</a></h1>
+    </div>
+    <nav>
+    <% if (user) { %>
+        <% if (Number(user.is_controller) === 1) { %>
+            <a href="/controller">Controller Panel</a>
+            <a href="/profile" class="profile-tab">Profile</a>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <a href="/dashboard">Dashboard</a>
+
+            <div class="dropdown">
+                <span class="dropdown-btn">Games <small>▼</small></span>
+                <div class="dropdown-content">
+                    <a href="/sabong" class="sabong-link-inner">Online Sabong 🐓</a>
+                    <a href="/bet">Online Draw 💰</a>
+                </div>
+            </div>
+
+            <a href="/topup">Top-up</a>
+            <a href="/withdraw">Withdraw</a>
+            
+            <a href="/profile" class="profile-tab">Profile</a>
+
+            <% if (user.is_admin) { %>
+                <a href="/admin">Admin</a>
+            <% } %>
+            <a href="/logout">Logout</a>
+        <% } %>
+    <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    <% } %>
+</nav>
+</header>
+
+<main>
+    <% if (messages && messages.error) { %>
+        <div class="flash error"><%= messages.error %></div>
+    <% } %>
+    <% if (messages && messages.success) { %>
+        <div class="flash success"><%= messages.success %></div>
+    <% } %>
+    <div class="content">
+        <%- body %>
+    </div>
+</main>
+
+<footer>
+    <small>Palaro Ni Juan &copy; 2026 - Timezone: Asia/Manila</small>
+</footer>
+</body>
+</html>

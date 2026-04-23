@@ -1,0 +1,139 @@
+<div style="margin-bottom:20px;">
+  <h3>📺 Live Sabong Feed</h3>
+  <iframe src="<%= streamUrl %>" width="100%" height="400" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<div class="controller-container">
+
+  <h2>🎮 Controller Dashboard</h2>
+
+  <link rel="stylesheet" href="/controller.css" />
+
+  <!-- 🐓 SABONG CONTROLLER -->
+  <div class="card">
+    <h3>🐓 Sabong Controller</h3>
+
+    <form action="/controller/sabong-result" method="POST">
+      <button name="winner" value="meron" class="btn red">MERON</button>
+      <button name="winner" value="wala" class="btn blue">WALA</button>
+    </form>
+
+    <h4 style="margin-top:20px;">Live Sabong Bets</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Choice</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% bets.filter(b => b.game_type === 'sabong').forEach(b => { %>
+         
+          <tr>
+            <td><%= b.user_id %></td>
+            <td><%= b.choice %></td>
+            <td>₱<%= b.amount %></td>
+            <td><%= b.status %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 🎯 DRAW CONTROLLER -->
+ <div class="card">
+  <h3>🎯 Draw Controller (6 Numbers)</h3>
+
+  <form id="drawForm" action="/controller/draw-result" method="POST">
+
+    <div class="bet-section">
+
+      <div class="number-grid">
+        <% for (let i = 1; i <= 50; i++) { %>
+          <button type="button" class="number-btn" data-number="<%= i %>">
+            <%= i %>
+          </button>
+        <% } %>
+      </div>
+
+      <div class="selected-numbers">
+        Selected: <span id="selectedNumbers">None</span>
+      </div>
+
+      <input type="hidden" name="numbers" id="hiddenNumbers">
+
+      <button type="submit" class="submit-btn">Submit Result</button>
+
+    </div>
+
+  </form>
+</div>
+
+
+
+
+    <!-- DRAW TABLE -->
+    <h4 style="margin-top:20px;">Live Draw Bets</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Number</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+         <% bets.filter(b => b.game_type === 'lotto').forEach(b => { %>
+          <tr>
+            <td><%= b.user_id %></td>
+            <td><%= b.numbers %></td>
+            <td>₱<%= b.amount %></td>
+            <td><%= b.status %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<script>
+  const buttons = document.querySelectorAll('.number-btn');
+  const hiddenInput = document.getElementById('hiddenNumbers');
+  const display = document.getElementById('selectedNumbers');
+
+  let selected = [];
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const number = btn.dataset.number;
+
+      if (selected.includes(number)) {
+        // remove
+        selected = selected.filter(n => n !== number);
+        btn.classList.remove('selected');
+      } else {
+        if (selected.length >= 6) {
+          alert("You can only select 6 numbers!");
+          return;
+        }
+        selected.push(number);
+        btn.classList.add('selected');
+      }
+
+      display.textContent = selected.length ? selected.join(', ') : 'None';
+      hiddenInput.value = selected.join(',');
+    });
+  });
+
+  document.getElementById('drawForm').addEventListener('submit', (e) => {
+    if (selected.length !== 6) {
+      e.preventDefault();
+      alert("Select exactly 6 numbers!");
+    }
+  });
+</script>
