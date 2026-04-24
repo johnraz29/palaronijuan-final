@@ -14,6 +14,25 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+const session = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session); // Idagdag ito
+
+// --- SESSION & FLASH CONFIGURATION ---
+app.use(
+  session({
+    store: new SQLiteStore({ db: 'sessions.db', dir: './' }), // Dito ise-save ang session imbes na sa memory
+    secret: process.env.SESSION_SECRET || 'palaro-ni-juan-secret', 
+    resave: false, 
+    saveUninitialized: false,
+    cookie: { 
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days na mananatiling login ang user
+        secure: false // Gawing true kung naka-HTTPS ka na (Railway is usually HTTPS)
+    }
+  })
+);
+
+
+
 // CONFIGURATIONS
 const ADMIN_PANEL_PASSWORD = process.env.ADMIN_PANEL_PASSWORD;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
