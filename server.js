@@ -14,25 +14,6 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session); // Idagdag ito
-
-// --- SESSION & FLASH CONFIGURATION ---
-app.use(
-  session({
-    store: new SQLiteStore({ db: 'sessions.db', dir: './' }), // Dito ise-save ang session imbes na sa memory
-    secret: process.env.SESSION_SECRET || 'palaro-ni-juan-secret', 
-    resave: false, 
-    saveUninitialized: false,
-    cookie: { 
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days na mananatiling login ang user
-        secure: false // Gawing true kung naka-HTTPS ka na (Railway is usually HTTPS)
-    }
-  })
-);
-
-
-
 // CONFIGURATIONS
 const ADMIN_PANEL_PASSWORD = process.env.ADMIN_PANEL_PASSWORD;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
@@ -200,52 +181,24 @@ app.post('/profile/update-password', ensureAuthenticated, async (req, res) => {
     });
 });
 
-// --- REGISTER ROUTES ---
+// --- AUTH ROUTES ---
 
-// 1. Ipakita ang form (GET)
-app.get('/register', (req, res) => {
-    res.render('register', { step: 'input' }); 
-});
+app.get('/', (req, res) => res.render('index', { user: req.user }));
 
-// 2. Tanggapin ang data at magpadala ng OTP (POST)
+app.get('/register', (req, res) => res.render('register', { step: 'input' }));
+
 app.post('/register', async (req, res) => {
     const { name, email, phone, password } = req.body;
-    
-    // ... validation logic mo ...
-
+    if (!name || !email || !phone || !password) { req.flash('error', 'Lahat ng fields ay kailangan.'); return res.redirect('/register'); }
     db.get('SELECT id FROM users WHERE email = ? OR phone = ?', [email, phone], async (err, row) => {
-        if (row) { 
-            req.flash('error', 'Email o Phone number ay gamit na.'); 
-            return res.redirect('/register'); 
-        }
-        
+        if (row) { req.flash('error', 'Email o Phone number ay gamit na.'); return res.redirect('/register'); }
         const otp = generateOTP();
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        try {
-            const apiKey = process.env.SEMAPHORE_API_KEY;
-            const message = `Ang iyong OTP para sa Palaro ni Juan ay: ${otp}.`;
-            
-            await axios.post(`https://semaphore.co/api/v4/messages`, {
-                apikey: apiKey,
-                number: phone,
-                message: message
-            });
-
-            req.session.tempUser = { name, email, phone, password_hash: hashedPassword, otp: otp };
-            
-            // Dito mo ipapakita ang verification screen
-            res.render('register', { step: 'verify', phone: phone });
-
-        } catch (error) {
-            console.error('SMS Error:', error);
-            req.flash('error', 'Hindi maipadala ang OTP. Subukan muli.');
-            res.redirect('/register');
-        }
+        req.session.tempUser = { name, email, phone, password_hash: hashedPassword, otp: otp };
+        console.log(`OTP: ${otp}`);
+        res.render('register', { step: 'verify', phone: phone });
     });
 });
-
-//VERIFY OTP ROUTE
 
 app.post('/verify-otp', (req, res) => {
     const { otp_input } = req.body;
@@ -264,9 +217,6 @@ app.post('/verify-otp', (req, res) => {
         res.render('register', { step: 'verify', phone: tempUser.phone });
     }
 });
-
-
-
 
 app.get('/login', (req, res) => res.render('login'));
 app.post('/login', passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }), (req, res) => {
