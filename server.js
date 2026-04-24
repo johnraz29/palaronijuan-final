@@ -183,23 +183,29 @@ app.post('/profile/update-password', ensureAuthenticated, async (req, res) => {
 
 // --- REGISTER ROUTES ---
 
-app.get('/', (req, res) => res.render('index', { user: req.user }));
+// 1. Ipakita ang form (GET)
+app.get('/register', (req, res) => {
+    res.render('register', { step: 'input' }); 
+});
 
+// 2. Tanggapin ang data at magpadala ng OTP (POST)
 app.post('/register', async (req, res) => {
     const { name, email, phone, password } = req.body;
     
-    // Validation logic...
+    // ... validation logic mo ...
 
     db.get('SELECT id FROM users WHERE email = ? OR phone = ?', [email, phone], async (err, row) => {
-        if (row) { req.flash('error', 'Email o Phone number ay gamit na.'); return res.redirect('/register'); }
+        if (row) { 
+            req.flash('error', 'Email o Phone number ay gamit na.'); 
+            return res.redirect('/register'); 
+        }
         
         const otp = generateOTP();
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // DITO NATIN IPAPADALA ANG SMS
         try {
-            const apiKey = process.env.SEMAPHORE_API_KEY; // Ilagay mo ito sa Railway Variables
-            const message = `Ang iyong OTP para sa Palaro ni Juan ay: ${otp}. Huwag itong ibigay sa iba.`;
+            const apiKey = process.env.SEMAPHORE_API_KEY;
+            const message = `Ang iyong OTP para sa Palaro ni Juan ay: ${otp}.`;
             
             await axios.post(`https://semaphore.co/api/v4/messages`, {
                 apikey: apiKey,
@@ -207,9 +213,9 @@ app.post('/register', async (req, res) => {
                 message: message
             });
 
-            console.log(`OTP Sent to ${phone}: ${otp}`);
-
             req.session.tempUser = { name, email, phone, password_hash: hashedPassword, otp: otp };
+            
+            // Dito mo ipapakita ang verification screen
             res.render('register', { step: 'verify', phone: phone });
 
         } catch (error) {
