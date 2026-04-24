@@ -181,24 +181,46 @@ app.post('/profile/update-password', ensureAuthenticated, async (req, res) => {
     });
 });
 
-// --- AUTH ROUTES ---
+// --- REGISTER ROUTES ---
 
 app.get('/', (req, res) => res.render('index', { user: req.user }));
 
-app.get('/register', (req, res) => res.render('register', { step: 'input' }));
-
 app.post('/register', async (req, res) => {
     const { name, email, phone, password } = req.body;
-    if (!name || !email || !phone || !password) { req.flash('error', 'Lahat ng fields ay kailangan.'); return res.redirect('/register'); }
+    
+    // Validation logic...
+
     db.get('SELECT id FROM users WHERE email = ? OR phone = ?', [email, phone], async (err, row) => {
         if (row) { req.flash('error', 'Email o Phone number ay gamit na.'); return res.redirect('/register'); }
+        
         const otp = generateOTP();
         const hashedPassword = await bcrypt.hash(password, 10);
-        req.session.tempUser = { name, email, phone, password_hash: hashedPassword, otp: otp };
-        console.log(`OTP: ${otp}`);
-        res.render('register', { step: 'verify', phone: phone });
+        
+        // DITO NATIN IPAPADALA ANG SMS
+        try {
+            const apiKey = process.env.SEMAPHORE_API_KEY; // Ilagay mo ito sa Railway Variables
+            const message = `Ang iyong OTP para sa Palaro ni Juan ay: ${otp}. Huwag itong ibigay sa iba.`;
+            
+            await axios.post(`https://semaphore.co/api/v4/messages`, {
+                apikey: apiKey,
+                number: phone,
+                message: message
+            });
+
+            console.log(`OTP Sent to ${phone}: ${otp}`);
+
+            req.session.tempUser = { name, email, phone, password_hash: hashedPassword, otp: otp };
+            res.render('register', { step: 'verify', phone: phone });
+
+        } catch (error) {
+            console.error('SMS Error:', error);
+            req.flash('error', 'Hindi maipadala ang OTP. Subukan muli.');
+            res.redirect('/register');
+        }
     });
 });
+
+//VERIFY OTP ROUTE
 
 app.post('/verify-otp', (req, res) => {
     const { otp_input } = req.body;
@@ -217,6 +239,9 @@ app.post('/verify-otp', (req, res) => {
         res.render('register', { step: 'verify', phone: tempUser.phone });
     }
 });
+
+
+
 
 app.get('/login', (req, res) => res.render('login'));
 app.post('/login', passport.authenticate('local', { failureRedirect: '/login', failureFlash: true }), (req, res) => {
